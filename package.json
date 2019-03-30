@@ -14,9 +14,11 @@
     "react-bootstrap": "0",
     "react-day-picker": "^7.3.0",
     "react-dom": "^16.8.4",
+    "react-dom-factories": "^1.0.0",
     "react-progress-2": "^4.4.3",
     "react-scripts": "2.1.8",
-    "react-select": "^2.4.2"
+    "react-selectize": "^3.0.1",
+    "react-transition-group": "^1.1.2"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",

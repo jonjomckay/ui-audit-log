@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
-import { groupBy } from 'ramda';
+import groupBy from 'ramda/es/groupBy';
 import { Button, ButtonToolbar, Col, Fade, Grid, OverlayTrigger, Popover, Row } from 'react-bootstrap';
 import DayPicker, { DateUtils } from 'react-day-picker';
 import Progress from 'react-progress-2';
-import { format } from 'date-fns';
+import MultiSelect from 'react-selectize/src/MultiSelect';
+import format from 'date-fns/format';
 
 import EventContainer from './EventContainer';
 import { listUsers, searchEvents } from './EventSource';
 import { eventTypes } from './EventTypes';
-import Select from './Select';
 
+import './App.css';
 import 'react-day-picker/lib/style.css';
-import 'react-progress-2/main.css'
+import 'react-progress-2/main.css';
+import 'react-selectize/themes/index.css';
 
 const token = process.env.REACT_APP_TOKEN;
 
@@ -102,16 +104,23 @@ class App extends Component {
             return eventType.split('.')[0];
         });
 
-        const typeOptions = Object.entries(groupEventTypes(Object.keys(eventTypes))).map(([key, types]) => {
+        const eventGroups = Object.entries(groupEventTypes(Object.keys(eventTypes)));
+
+        const typeGroups = eventGroups.map(([key, _]) => {
             return {
-                label: key,
-                options: types.map(type => {
-                    return {
-                        label: type,
-                        value: type
-                    }
-                })
-            };
+                groupId: key,
+                title: key
+            }
+        });
+
+        const typeOptions = eventGroups.flatMap(([key, types]) => {
+            return types.map(type => {
+                return {
+                    groupId: key,
+                    label: type,
+                    value: type
+                }
+            });
         });
 
         const userOptions = this.state.users.map(user => {
@@ -147,23 +156,25 @@ class App extends Component {
 
                 <Row>
                     <Col lg={ 4 }>
-                        <Select
-                            isMulti
-                            onChange={ this.onChangeFilterTypes }
+                        <MultiSelect
+                            groups={ typeGroups }
                             options={ typeOptions }
+                            onValuesChange={ this.onChangeFilterTypes }
                             placeholder="Choose type(s)"
+                            style={{ width: '100%' }}
+                            theme="bootstrap3"
                             value={ this.state.filterTypes }
                         />
                     </Col>
 
                     <Col lg={ 3 }>
-                        <Select
-                            isDisabled={ this.state.isLoadingUsers }
-                            isLoading={ this.state.isLoadingUsers }
-                            isMulti
-                            onChange={ this.onChangeFilterUsers }
+                        <MultiSelect
+                            disabled={ this.state.isLoadingUsers }
                             options={ userOptions }
+                            onValueChange={ this.onChangeFilterUsers}
                             placeholder="Choose user(s)"
+                            style={{ width: '100%' }}
+                            theme="bootstrap3"
                             value={ this.state.filterUsers }
                         />
                     </Col>
