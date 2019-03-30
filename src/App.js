@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { groupBy } from 'ramda';
-import { Button, ButtonToolbar, Col, Grid, OverlayTrigger, Popover, Row } from 'react-bootstrap';
+import { Button, ButtonToolbar, Col, Fade, Grid, OverlayTrigger, Popover, Row } from 'react-bootstrap';
 import DayPicker, { DateUtils } from 'react-day-picker';
+import Progress from 'react-progress-2';
 import { format } from 'date-fns';
 
 import EventContainer from './EventContainer';
@@ -10,6 +11,7 @@ import { eventTypes } from './EventTypes';
 import Select from './Select';
 
 import 'react-day-picker/lib/style.css';
+import 'react-progress-2/main.css'
 
 const token = process.env.REACT_APP_TOKEN;
 
@@ -26,6 +28,7 @@ class App extends Component {
     state = {
         ...defaultFilters,
         events: [],
+        isLoadingEvents: true,
         isLoadingUsers: true,
         users: []
     };
@@ -37,6 +40,17 @@ class App extends Component {
         }));
 
         this.onClickSearch();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        // NOTE: This is really only here to make is pretty locally - I'm guessing it'll be replaced with the spinner
+        if (this.state.isLoadingEvents !== prevState.isLoadingEvents) {
+            if (this.state.isLoadingEvents) {
+                Progress.show();
+            } else {
+                Progress.hide();
+            }
+        }
     }
 
     onChangeFilterDate = (date) => {
@@ -72,9 +86,14 @@ class App extends Component {
             user: this.state.filterUsers.map(user => user.value),
         };
 
+        this.setState({
+            isLoadingEvents: true
+        });
+
         searchEvents(token, parameters)
             .then(response => this.setState({
-                events: response
+                events: response,
+                isLoadingEvents: false
             }));
     };
 
@@ -124,6 +143,8 @@ class App extends Component {
 
         return (
             <Grid fluid style={{ marginTop: 20 }}>
+                <Progress.Component />
+
                 <Row>
                     <Col lg={ 4 }>
                         <Select
@@ -172,22 +193,24 @@ class App extends Component {
                     </Col>
                 </Row>
 
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Occurred At</th>
-                            <th>User</th>
-                            <th>Flow</th>
-                            <th>State ID</th>
-                            <th>Data</th>
-                        </tr>
-                    </thead>
+                <Fade in={ this.state.isLoadingEvents === false }>
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Occurred At</th>
+                                <th>User</th>
+                                <th>Flow</th>
+                                <th>State ID</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        <EventContainer events={ this.state.events }  />
-                    </tbody>
-                </table>
+                        <tbody>
+                            <EventContainer events={ this.state.events }  />
+                        </tbody>
+                    </table>
+                </Fade>
             </Grid>
         );
     }
