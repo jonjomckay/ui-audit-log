@@ -76,7 +76,7 @@ export default class Event extends React.Component {
             : createNotApplicable();
 
         return (
-            <tr>
+            <tr className={ this.props.className }>
                 <td>
                     <OverlayTrigger trigger={["focus", "hover"]} placement="bottom" overlay={ createTypePopover(type) }>
                         <div>{ type.name }</div>

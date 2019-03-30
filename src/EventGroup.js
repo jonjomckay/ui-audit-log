@@ -16,7 +16,7 @@ export default class EventGroup extends React.Component {
     };
 
     render() {
-        const events = this.props.events.map(event => <Event event={ event } key={ event.id } />);
+        const events = this.props.events.map(event => <Event className="warning" event={ event } key={ event.id } />);
 
         const type = getEventType(this.props.events[0].type);
         const when = this.props.events[0].occurredAt;
@@ -24,17 +24,11 @@ export default class EventGroup extends React.Component {
         const expandedRow = this.state.isExpanded
             ?
             (
-                <tr>
-                    <td colSpan={ 5 }>
-                        <table className="table">
-                            <Collapse in={ this.state.isExpanded }>
-                                <tbody>
-                                { events }
-                                </tbody>
-                            </Collapse>
-                        </table>
-                    </td>
-                </tr>
+                <Collapse in={ this.state.isExpanded }>
+                    <React.Fragment>
+                        { events }
+                    </React.Fragment>
+                </Collapse>
             )
             : null;
 
